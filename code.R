@@ -13,6 +13,25 @@ data = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
                                         origin = "country.name",
                                         destination = "continent"))
 
+data %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  group_by(year, name) %>% 
+  tally() %>% 
+  tidyr::spread(name, n, fill = 0) %>% 
+  tidyr::gather(key = 'country', value = 'number', -year) %>% 
+  ggplot() + 
+  geom_tile(aes(x = year, y = country, fill = factor(number)), col = 'white') + 
+  scale_x_continuous(breaks = seq(2000, 2020, 4),
+                     labels = seq(2000, 2020, 4)) + 
+  scale_fill_manual(values=c("#d53e4f","#fdae61","#abdda4")) +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.position = 'bottom',
+        legend.direction = 'horizontal') + 
+  guides(fill = guide_legend(title="Number of Surveys")) + 
+  labs(x = '', y = '')
+
 country = data %>% 
   dplyr::group_by(name) %>% 
   tally() %>% 
@@ -23,16 +42,14 @@ data %>%
   ggplot(aes(x = date, y = dollar_price, col = continent)) + 
   geom_line() +
   # stat_smooth(formula = y~x, method = 'lm', se = F, lwd = 0.75) + 
-  facet_wrap(~name, scales = 'free_y') + 
+  facet_wrap(~name) + 
   scale_color_brewer(palette = 'Set1') + 
-  scale_x_date(date_breaks = '5 year', date_labels = '%Y') + 
+  scale_x_date(date_breaks = '10 year', date_labels = '%Y') + 
   theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
         legend.position = 'bottom',
-        legend.direction = 'horizontal')
-
-data %>% 
-  dplyr::select(date, name, dollar_price) %>% 
-  tidyr::spread(key = name, value = dollar_price)
+        legend.direction = 'horizontal') + 
+  theme_bw()
 
 
 ggplot(data) + 
