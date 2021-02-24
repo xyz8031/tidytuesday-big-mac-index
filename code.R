@@ -1,17 +1,14 @@
 library(countrycode)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
-library(gganimate)
+library(lubridate)
 
 setwd('~/Documents/Github/tidytuesday-big-mac-index/')
 theme_set(theme_minimal(base_family = 'Raleway', base_size = 10))
 
 data = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-12-22/big-mac.csv') %>% 
-  dplyr::filter(name != 'Euro area') %>% 
-  dplyr::select(date, name, dollar_price, gdp_dollar) %>% 
-  dplyr::mutate(continent = countrycode(sourcevar = name,
-                                        origin = "country.name",
-                                        destination = "continent"))
+  dplyr::select(date, name, dollar_price, local_price, dollar_ex, gdp_dollar)
 
 survey_num = data %>% 
   mutate(year = lubridate::year(date)) %>% 
@@ -23,7 +20,7 @@ survey_num = data %>%
 missing_country = survey_num %>% 
   dplyr::group_by(country) %>% 
   dplyr::summarise(missing = sum(number == 0)) %>% 
-  dplyr::filter(missing >= 12)
+  dplyr::filter(missing >= 10)
   
 ggplot(survey_num, aes(x = year, y = country, fill = factor(number))) + 
   geom_tile( col = 'white', size = 0.5, alpha = 0.85) + 
@@ -41,24 +38,31 @@ ggplot(survey_num, aes(x = year, y = country, fill = factor(number))) +
   guides(fill = guide_legend(title="Number of\nSurveys")) + 
   labs(x = '', y = '', title = 'The Number of Big Mac Index Surverys')
 
-country = data %>% 
-  dplyr::group_by(name) %>% 
-  tally() %>% 
-  dplyr::filter(n >= 10)
+
+data = data %>% 
+  dplyr::mutate(year = year(date)) %>% 
+  dplyr::group_by(year, name) %>% 
+  dplyr::summarise(dollar_price = mean(dollar_price),
+                   local_price = mean(local_price),
+                   dollar_ex = mean(dollar_ex),
+                   gdp_dollar = mean(gdp_dollar)) %>%
+  dplyr::mutate(continent = countrycode(sourcevar = name,
+                                        origin = "country.name",
+                                        destination = "continent")) %>%
+  dplyr::mutate(continent = ifelse(name == 'Euro area','Europe', continent)) %>% 
+  dplyr::select(year, name, continent, dollar_price:gdp_dollar)
 
 data %>% 
-  dplyr::filter(name %in% country$name & continent == 'Asia') %>% 
+  dplyr::filter(!(name %in% missing_country$country) & continent == 'Asia') %>% 
   # dplyr::mutate(name = forcats::fct_reorder(name, continent)) %>% 
-  ggplot(aes(x = date, y = dollar_price, col = continent)) + 
+  ggplot(aes(x = year, y = local_price, col = continent)) + 
   geom_line(lwd = 1.2) +
   # stat_smooth(formula = y~x, method = 'lm', se = F, lwd = 0.75) + 
-  facet_wrap(~name) + 
-  scale_color_brewer(palette = 'Set1') + 
-  scale_x_date(date_breaks = '5 year', date_labels = '%Y') + 
+  facet_wrap(~name, scales = 'free') + 
+  labs(x = '', y = '', title = 'Price of Big Mac in Local Currency Across Asia') + 
   theme_bw() + 
   theme(panel.grid.minor = element_blank(),
-        legend.position = 'bottom',
-        legend.direction = 'horizontal') 
+        legend.position = 'none') 
 
 ggplot(data) + 
   geom_point(aes(x = gdp_dollar, y = dollar_price, col = continent)) +
