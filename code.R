@@ -225,7 +225,6 @@ for (c in unique(data$continent)) {
     geom_line(col = ggthemes::gdocs_pal()(9)[i], lwd = 1.2) +
     facet_wrap(~name, scales = 'free') + 
     labs(x = '', y = '', title = glue('Price of Big Mac in Local Currency Across {c}')) + 
-    theme_bw() + 
     theme(panel.grid.minor = element_blank(),
           legend.position = 'none') 
   
