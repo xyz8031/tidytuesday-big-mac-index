@@ -224,7 +224,7 @@ for (c in unique(data$continent)) {
     geom_line(data = temp, aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
     geom_line(col = ggthemes::gdocs_pal()(9)[i], lwd = 1.2) +
     facet_wrap(~name, scales = 'free') + 
-    labs(x = '', y = '', title = 'Price of Big Mac in Local Currency Across Asia') + 
+    labs(x = '', y = '', title = glue('Price of Big Mac in Local Currency Across {c}')) + 
     theme_bw() + 
     theme(panel.grid.minor = element_blank(),
           legend.position = 'none') 
@@ -248,7 +248,7 @@ for (c in unique(data$continent)) {
     geom_line(data = temp %>% dplyr::select(-name), aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
     geom_line(lwd = 1.15, col = ggthemes::gdocs_pal()(9)[i]) +
     facet_wrap(~name, scales = 'free') + 
-    labs(x = '', y = '', title = 'Price of Big Mac in US dollar Across Asia') + 
+    labs(x = '', y = '', title = glue('Price of Big Mac in US dollar Across {c}')) + 
     theme(panel.grid.minor = element_blank(),
           legend.position = 'none') 
   
