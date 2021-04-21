@@ -202,6 +202,7 @@ p1 + p2 + plot_annotation(title = 'The Turkish Lira')
 
 
 # Price change in local currency
+i = 1
 for (c in unique(data$continent)) {
   
   temp = data %>% 
@@ -221,20 +222,22 @@ for (c in unique(data$continent)) {
                   local_price = (local_price - min) / (max - min)) %>% 
     ggplot(aes(x = year, y = local_price)) + 
     geom_line(data = temp, aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
-    geom_line(col = '#3366cc', lwd = 1.2) +
+    geom_line(col = ggthemes::gdocs_pal()(9)[i], lwd = 1.2) +
     facet_wrap(~name, scales = 'free') + 
     labs(x = '', y = '', title = 'Price of Big Mac in Local Currency Across Asia') + 
     theme_bw() + 
     theme(panel.grid.minor = element_blank(),
           legend.position = 'none') 
   
+  ggsave(glue('{c}_local_currency.png'), width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
   
+  i = i + 1
 }
 
 # Prince change in us dollar
-
+i = 1
 for (c in unique(data$continent)) {
-  
+
   temp = data %>% 
     dplyr::filter(!(name %in% missing_country$country) & continent == c) %>% 
     dplyr::mutate(name2 = name)
@@ -243,7 +246,7 @@ for (c in unique(data$continent)) {
     dplyr::filter(!(name %in% missing_country$country) & continent == c) %>% 
     ggplot(aes(x = year, y = dollar_price)) + 
     geom_line(data = temp %>% dplyr::select(-name), aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
-    geom_line(lwd = 1.15, col = '#3366cc') +
+    geom_line(lwd = 1.15, col = ggthemes::gdocs_pal()(9)[i]) +
     facet_wrap(~name, scales = 'free') + 
     labs(x = '', y = '', title = 'Price of Big Mac in US dollar Across Asia') + 
     theme(panel.grid.minor = element_blank(),
@@ -251,12 +254,10 @@ for (c in unique(data$continent)) {
   
   ggsave(glue('{c}_us_dollar.png'), width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
   
+  i = i + 1
 }
 
-# ggthemes::gdocs_pal()(9)
-
 #
-
 ggplot(data, aes(x = year, y = dollar_price, group = name, col = continent)) +
   geom_point(col = 'grey') +
   stat_smooth(aes(group = continent), formula = y~x, se = F) + 
