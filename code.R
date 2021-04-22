@@ -217,11 +217,11 @@ for (c in unique(data$continent)) {
   data %>% 
     dplyr::filter(!(name %in% missing_country$country) & continent == c) %>% 
     dplyr::group_by(name) %>% 
-    dplyr::mutate(max = max(local_price),
-                  min = min(local_price),
-                  local_price = (local_price - min) / (max - min)) %>% 
+    # dplyr::mutate(max = max(local_price),
+    #               min = min(local_price),
+    #               local_price = (local_price - min) / (max - min)) %>% 
     ggplot(aes(x = year, y = local_price)) + 
-    geom_line(data = temp, aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
+    # geom_line(data = temp, aes(group=name2), col = 'lightgrey', lwd = 0.5) + 
     geom_line(col = ggthemes::gdocs_pal()(9)[i], lwd = 1.2) +
     facet_wrap(~name, scales = 'free') + 
     labs(x = '', y = '', title = glue('Price of Big Mac in Local Currency Across {c}')) + 
@@ -257,6 +257,18 @@ for (c in unique(data$continent)) {
 }
 
 #
+data %>% 
+  dplyr::group_by(name) %>% 
+  arrange(year) %>% 
+  dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
+  ggplot(aes(x = year, y = dollar_price, group = name, col = continent)) + 
+  geom_line(show.legend = F) + 
+  facet_wrap(~continent) +
+  theme(panel.grid.minor = element_blank()) + 
+  ggthemes::scale_color_gdocs() + 
+  ylab("Gorwth Percentage") + xlab('')
+
+#
 ggplot(data, aes(x = year, y = dollar_price, group = name, col = continent)) +
   geom_point(col = 'grey') +
   stat_smooth(aes(group = continent), formula = y~x, se = F) + 
@@ -277,6 +289,6 @@ data %>%
   stat_smooth(aes(group = continent), formula = y~x, se = F) + 
   theme_minimal() + 
   scale_color_brewer(palette = 'Set1') + 
-  facet_wrap(~continent, scales = 'free') + 
+  facet_wrap(~continent) + 
   theme(panel.grid.minor = element_blank(),
         legend.position = 'none')  
