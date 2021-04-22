@@ -282,10 +282,17 @@ temp = data %>%
   dplyr::summarise(max_growth = max(local_price)) 
 temp$name = forcats::fct_reorder(temp$name, temp$max_growth)
 
-ggplot(temp) + 
-  geom_bar(aes(x = name, y = max_growth), stat = 'identity')+
-  facet_wrap(~continent, scales = 'free') + 
-  coord_flip() 
+temp %>% 
+  dplyr::filter(name != 'Argentina') %>% 
+  ggplot() + 
+  geom_bar(aes(y = name, x = max_growth), stat = 'identity', fill = 'lightgrey') + 
+  geom_vline(aes(xintercept = median(temp$max_growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
+  scale_x_continuous(labels = scales::percent) +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank())
+  # facet_wrap(~continent, scales = 'free') + 
+
+ggsave('max_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
 
 #
 temp = data %>% 
