@@ -261,7 +261,8 @@ data %>%
   dplyr::group_by(name) %>% 
   arrange(year) %>% 
   dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
-  ggplot(aes(x = year, y = dollar_price, group = name, col = continent)) + 
+  dplyr::filter(name != 'Argentina') %>% 
+  ggplot(aes(x = year, y = local_price, group = name, col = continent)) + 
   geom_line(show.legend = F) + 
   facet_wrap(~continent) +
   theme(panel.grid.minor = element_blank()) + 
@@ -272,6 +273,52 @@ data %>%
 
 ggsave('price_change_normalize.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
+# 
+temp = data %>% 
+  dplyr::group_by(name) %>% 
+  arrange(year) %>% 
+  dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
+  dplyr::group_by(continent, name) %>% 
+  dplyr::summarise(max_growth = max(local_price)) 
+temp$name = forcats::fct_reorder(temp$name, temp$max_growth)
+
+ggplot(temp) + 
+  geom_bar(aes(x = name, y = max_growth), stat = 'identity')+
+  facet_wrap(~continent, scales = 'free') + 
+  coord_flip() 
+
+#
+temp = data %>% 
+  dplyr::group_by(name) %>% 
+  arrange(year) %>% 
+  # dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
+  dplyr::group_by(name) %>% 
+  arrange(year) %>% 
+  dplyr::filter(row_number() == 1 | row_number() == max(row_number())) %>% 
+  arrange(name, year) %>% 
+  dplyr::mutate(order = row_number(),
+                order = ifelse(order == 1, 'start', 'end')) %>% 
+  dplyr::select(name, local_price, order) %>% 
+  tidyr::pivot_wider(id_col = name, names_from = order, values_from = local_price) %>% 
+  dplyr::mutate(growth = (end/start)^(1/20) - 1) %>% 
+  dplyr::mutate(continent = countrycode(sourcevar = name,
+                                        origin = "country.name",
+                                        destination = "continent")) %>%
+  dplyr::mutate(continent = ifelse(name == 'Euro area','Europe', continent)) 
+temp$name = forcats::fct_reorder(temp$name, temp$growth)
+
+ggplot(temp) +
+  geom_bar(aes(y = name, x = growth), stat = 'identity', fill = 'lightgrey') +
+  # geom_bar(data = temp %>% dplyr::filter(continent == 'Asia'), aes(y = name, x = growth, fill = continent), stat = 'identity', alpha = 0.5) +
+  # geom_vline(aes(xintercept = mean(temp$growth)), col = 'red', linetype = 'dashed', lwd = 0.85) +
+  geom_vline(aes(xintercept = median(temp$growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
+  scale_x_continuous(labels = scales::percent) +
+  ggthemes::scale_fill_gdocs() + 
+  # facet_wrap(~continent, scales = 'free_y') +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank()) 
+
+ggsave('price_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
 
 #
 ggplot(data, aes(x = year, y = dollar_price, group = name, col = continent)) +
