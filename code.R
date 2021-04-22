@@ -266,7 +266,12 @@ data %>%
   facet_wrap(~continent) +
   theme(panel.grid.minor = element_blank()) + 
   ggthemes::scale_color_gdocs() + 
-  ylab("Gorwth Percentage") + xlab('')
+  ylab("Gorwth Percentage") + xlab('') + 
+  labs(title = 'Big Mac Price Surges over the Past 20 Years',
+       subtitle = '2000 as Base Year')
+
+ggsave('price_change_normalize.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
 
 #
 ggplot(data, aes(x = year, y = dollar_price, group = name, col = continent)) +
