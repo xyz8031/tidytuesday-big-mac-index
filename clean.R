@@ -12,17 +12,31 @@ theme_set(theme_minimal(base_family = 'Raleway', base_size = 10))
 
 # scales::show_col(scales::brewer_pal(palette = "Set1")(5))
 
-data = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-12-22/big-mac.csv') %>% 
-  dplyr::select(date, name, dollar_price, local_price, dollar_ex, gdp_dollar) %>% 
-  dplyr::mutate(name = plyr::mapvalues(name, 
-                                       from = c('United States', 'United Arab Emirates'),
-                                       to = c('USA', 'UAE')))
+data = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-12-22/big-mac.csv')
+str(data)
 
+data = data %>% 
+  dplyr::select(date, name, iso_a3, dollar_price, local_price, dollar_ex, gdp_dollar)
+  # dplyr::mutate(name = plyr::mapvalues(name, 
+  #                                      from = c('United States', 'United Arab Emirates'),
+  #                                      to = c('USA', 'UAE')))
+
+skimr::skim(data)
+str(data)
+
+# 國家、州名稱
+data = data %>% 
+  dplyr::filter(iso_a3 != 'EUZ') %>% 
+  dplyr::mutate(country = countrycode(iso_a3, origin = 'iso3c', destination = 'cldr.short.en'),
+                continent = countrycode(iso_a3, origin = "iso3c", destination = "continent")) %>% 
+  dplyr::select(-name)
+
+# 調查數量
 survey_num = data %>% 
   mutate(year = lubridate::year(date)) %>% 
-  group_by(year, name) %>% 
+  group_by(year, country) %>% 
   tally() %>% 
-  tidyr::spread(name, n, fill = 0) %>% 
+  tidyr::spread(country, n, fill = 0) %>% 
   tidyr::gather(key = 'country', value = 'number', -year)
 
 missing_country = survey_num %>% 
