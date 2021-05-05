@@ -6,6 +6,7 @@ library(lubridate)
 library(ggpubr)
 library(patchwork)
 library(glue)
+library(forcats)
 
 setwd('~/Documents/Github/tidytuesday-big-mac-index/')
 theme_set(theme_minimal(base_family = 'Raleway', base_size = 10))
@@ -21,15 +22,17 @@ data = data %>%
   #                                      from = c('United States', 'United Arab Emirates'),
   #                                      to = c('USA', 'UAE')))
 
+head(data, 6)
 skimr::skim(data)
-str(data)
 
 # 國家、州名稱
 data = data %>% 
-  dplyr::filter(iso_a3 != 'EUZ') %>% 
+  # dplyr::filter(iso_a3 != 'EUZ') %>% 
   dplyr::mutate(country = countrycode(iso_a3, origin = 'iso3c', destination = 'cldr.short.en'),
                 continent = countrycode(iso_a3, origin = "iso3c", destination = "continent")) %>% 
-  dplyr::select(-name)
+  dplyr::mutate(country = ifelse(iso_a3 == 'EUZ', 'Euro Zone', country),
+                continent = ifelse(iso_a3 == 'EUZ', 'Europe', continent)) %>% 
+  dplyr::select(-name, -iso_a3)
 
 # 調查數量
 survey_num = data %>% 
@@ -42,32 +45,30 @@ survey_num = data %>%
 missing_country = survey_num %>% 
   dplyr::group_by(country) %>% 
   dplyr::summarise(missing = sum(number == 0)) %>% 
-  dplyr::filter(missing >= 10)
+  dplyr::filter(missing >= 12)
 
 temp = survey_num %>% 
   dplyr::group_by(country) %>% 
   dplyr::summarise(number = sum(number)) %>% 
   dplyr::mutate(country = forcats::fct_reorder(country, number))
-  
-temp = survey_num %>% 
-  dplyr::filter(country != 'Euro area') %>% 
-  dplyr::mutate(country = factor(country, levels = levels(temp$country))) %>% 
-  dplyr::mutate(continent = countrycode(sourcevar = country,
-                                     origin = "country.name",
-                                     destination = "continent"),
-                region = countrycode(sourcevar = country,
-                                        origin = "country.name",
-                                        destination = "region")) %>% 
-  dplyr::mutate(continent = ifelse(continent == 'Asia', region, continent)) %>% 
-  dplyr::mutate(continent = plyr::mapvalues(continent,
-                                            from = c('Oceania', 'Africa', 'Europe & Central Asia', 'South Asia'),
-                                            to = c('Other', 'Other', 'Other Asia', 'Other Asia')))
-  # dplyr::mutate(continent = ifelse(country == 'Euro area','Europe', continent)) %>% 
-  # dplyr::mutate(continent = plyr::mapvalues(continent,
-  #                                           from = c('Africa', 'Oceania'),
-  #                                           to = c('Other', 'Other'))) 
 
-ggplot(temp, aes(x = year, y = country, fill = factor(number))) +
+temp = survey_num %>% 
+  dplyr::mutate(country = factor(country, levels = levels(temp$country)),
+                continent = countrycode(sourcevar = country,
+                                        origin = "country.name",
+                                        destination = "continent"),
+                region = countrycode(sourcevar = country,
+                                     origin = "country.name",
+                                     destination = "region")) %>% 
+  dplyr::mutate(continent = ifelse(continent == 'Asia', region, continent),
+                continent = ifelse(country == 'Euro Zone', 'Europe', continent)) %>% 
+  dplyr::mutate(continent = plyr::mapvalues(continent,
+                                            from = c('Oceania', 'Africa', 'Europe & Central Asia', 'South Asia', 'East Asia & Pacific'),
+                                            to = c('Other', 'Other', 'Other East', 'Other East', 'Far East')))
+
+temp %>% 
+  dplyr::mutate(country = forcats::fct_reorder(country, number)) %>% 
+  ggplot(aes(x = year, y = country, fill = factor(number))) +
   geom_tile( col = 'white', size = 0.35, alpha = 0.85) +
   scale_x_continuous(name = NULL,
                      breaks = seq(2000, 2020, 4),
@@ -100,18 +101,14 @@ ggplot(temp, aes(x = year, y = country, fill = factor(number))) +
  # ggsave('survey_number.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 data = data %>% 
-  dplyr::filter(!(name %in% missing_country$country)) %>% 
+  dplyr::filter(!(country %in% missing_country$country)) %>% 
   dplyr::mutate(year = year(date)) %>% 
-  dplyr::group_by(year, name) %>% 
+  dplyr::group_by(year, continent, country) %>% 
   dplyr::summarise(dollar_price = mean(dollar_price, na.rm = T),
                    local_price = mean(local_price, na.rm = T),
                    dollar_ex = mean(dollar_ex, na.rm = T),
-                   gdp_dollar = mean(gdp_dollar, na.rm = T)) %>%
-  dplyr::mutate(continent = countrycode(sourcevar = name,
-                                        origin = "country.name",
-                                        destination = "continent")) %>%
-  dplyr::mutate(continent = ifelse(name == 'Euro area','Europe', continent)) %>% 
-  dplyr::select(year, name, continent, dollar_price:gdp_dollar)
+                   gdp_dollar = mean(gdp_dollar, na.rm = T)) %>% 
+  dplyr::select(year, continent, country, dollar_price:gdp_dollar)
 
 
 # gdp
@@ -132,17 +129,17 @@ data %>%
   theme(panel.grid.minor = element_blank(),
         plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 18, margin=ggplot2::margin(5,0,5,0)))
-# ggsave('missing_value_country.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+# ggsave('missing_value_year.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 temp = data %>% 
-  dplyr::group_by(name, continent) %>% 
+  dplyr::group_by(country, continent) %>% 
   dplyr::summarise(missing = sum(is.na(gdp_dollar)),
                    number = n()) %>% 
   dplyr::mutate(missing_pct = missing / number,
                 continent = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) 
-temp$name = forcats::fct_reorder(temp$name, temp$missing_pct)
+temp$country = forcats::fct_reorder(temp$country, temp$missing_pct)
   
-ggplot(temp, aes(x = name, y = missing_pct, fill = continent)) + 
+ggplot(temp, aes(x = country, y = missing_pct, fill = continent)) + 
   geom_bar(show.legend = F, stat = 'identity') + 
   coord_flip() +
   theme(panel.grid.major.y = element_blank(),
@@ -155,7 +152,7 @@ ggplot(temp, aes(x = name, y = missing_pct, fill = continent)) +
   ggthemes::scale_fill_gdocs() +
   theme(plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 18, margin=ggplot2::margin(5,0,5,0)))
-# ggsave('plot.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+# ggsave('missing_value_country.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 # add missing gdp data
 gdp = read.csv('gdp_data.csv', header = T)
@@ -163,9 +160,9 @@ colnames(gdp)[-1] = seq(1960, 2019)
 
 gdp = gdp %>% 
   tidyr::gather(key = 'year', value = 'gdp', -name) %>% 
-  dplyr::filter(name %in% data$name)
+  dplyr::filter(name %in% data$country)
 
-merge(data, gdp, by = c('name','year')) %>%
+merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year')) %>%
   dplyr::filter(year >= 2011) %>% 
   ggplot(aes(x = gdp, y = gdp_dollar)) + 
   geom_point(col = 'grey', fill = 'lightgrey', size = 5, alpha =0.5) +
@@ -190,11 +187,19 @@ merge(data, gdp, by = c('name','year')) %>%
 # ggsave('gdp_compare.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 
-data = merge(data, gdp, by = c('name','year'), all.x = T) %>% 
+data = merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year'), all.x = T) %>% 
   dplyr::mutate(gdp = ifelse(is.na(gdp), gdp_dollar, gdp)) %>% 
   dplyr::select(-gdp_dollar)
 
 # Turkish Lira
+data %>% 
+  dplyr::filter(continent == 'Asia') %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = local_price)) + 
+  facet_wrap(~country, scales = 'free_y') +
+  theme(panel.grid.minor = element_blank())
+# ggsave('pre_analysis.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
 p1 = data %>% dplyr::filter(name == 'Turkey') %>% 
   ggplot(aes(x = year, y = local_price)) +
   geom_line(lwd = 1.5)  +
