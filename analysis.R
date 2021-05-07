@@ -166,3 +166,47 @@ data %>%
   facet_wrap(~continent) + 
   theme(panel.grid.minor = element_blank(),
         legend.position = 'none')  
+
+# Minimum Wage
+#####################################################################################
+
+wage = read.csv('minimum_wage.csv') %>% 
+  dplyr::mutate(iso_a3 = countrycode(country, 
+                                     destination = 'iso3c', origin = 'country.name'),
+                country = countrycode(iso_a3, 
+                                      origin = 'iso3c', destination = 'cldr.short.en')) %>% 
+  dplyr::select(-iso_a3) %>% 
+  tidyr::drop_na()
+
+
+merge(data, wage, by = 'country') %>% 
+  dplyr::filter(year == 2020) %>% 
+  dplyr::mutate(hour = dollar_price / hourly_wage,
+                continent = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) %>% 
+  dplyr::mutate(country = forcats::fct_reorder(country, hour)) %>%
+  ggplot() + 
+  geom_bar(aes(x = country, y = hour, fill = continent), stat = 'identity', show.legend = F) + 
+  facet_wrap(~continent, scales = 'free_y') + 
+  coord_flip() + 
+  ggthemes::scale_fill_gdocs() +
+  theme(panel.grid.minor = element_blank())
+
+
+
+temp = merge(data, wage, by = 'country') %>% 
+  dplyr::filter(year == 2020) %>% 
+  dplyr::mutate(hour = dollar_price / hourly_wage,
+                continent = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent))
+  
+target = c('China', 'Hong Kong', 'India', 'Japan', 'South Korea', 'Taiwan', 'Thailand', 'UK', 'US')
+
+ggplot(temp %>% dplyr::filter(!(country %in% target)), 
+       aes(x = hourly_wage, y = dollar_price, label = country)) + 
+  geom_point(aes(color = continent), shape = 21, fill = 'white', size = 5, stroke = 1.5) + 
+  stat_smooth(formula = y~poly(x, 2), method = 'lm', se = F, col = 'grey', lwd = 1.5) +
+  ggrepel::geom_label_repel(data = temp %>% dplyr::filter(country %in% target)) +
+  ggthemes::scale_color_gdocs() +
+  theme(legend.position = 'top')
+
+
+

@@ -1,0 +1,203 @@
+country,work_hours,hourly_wage
+Afghanistan,40,0.42
+Albania,40,1.26
+Algeria,40,0.97
+Andorra,40,6.72
+Angola,44,0.33
+Antigua and Barbuda,40,3.04
+Argentina,48,2.34
+Armenia,40,0.82
+Australia,38,14.19
+Austria,40,
+Azerbaijan,40,0.85
+The Bahamas,40,5.25
+Bahrain,48,
+Bangladesh,48,0.09
+Barbados,40,3.13
+Belarus,40,0
+Belgium,38,11.06
+Belize,45,1.65
+Benin,40,0.39
+Bhutan,40,0.31
+Bolivia,48,1.6
+Bosnia and Herzegovina,40,1.34
+Botswana,48,0.28
+Brazil,44,1.58
+Brunei,48,
+Bulgaria,40,2.11
+Burkina Faso,40,0.34
+Burundi,40,
+Cambodia,48,
+Cameroon,40,0.36
+Canada,40,10.33
+Cape Verde,44,0.69
+Central African Republic,40,0.37
+Chad,39,0.61
+Chile,45,2.38
+China,40,0.94
+Colombia,48,1.61
+Comoros,40,0.72
+Democratic Republic of the Congo,45,0.11
+Republic of the Congo,40,0.89
+Costa Rica,48,2.59
+Côte d'Ivoire,40,0.36
+Croatia,40,3.27
+Cuba,48,0.44
+Cyprus,48,
+Czech Republic,40,3.81
+Denmark,37.5,
+Djibouti,48,
+Dominica,40,1.48
+Dominican Republic,44,0.36
+Ecuador,40,2.5
+Egypt,48,
+El Salvador,44,1.6
+Equatorial Guinea,48,1.06
+Eritrea,44.5,
+Estonia,40,3.67
+Eswatini,48,0.33
+Ethiopia,48,
+Federated States of Micronesia,40,
+Fiji,48,1.24
+Finland,40,
+France,35,11.46
+Gabon,40,1.48
+The Gambia,48,0.1
+Georgia,40,0.05
+Germany,40,10.68
+Ghana,40,0.23
+Greece,40,4.99
+Grenada,40,
+Guatemala,48,1.58
+Guernsey,,
+Guinea,48,
+Guinea-Bissau,45,0.17
+Guyana,40,0.97
+Haiti,48,0.43
+Honduras,44,1.04
+Hong Kong,40,5.04
+Hungary,40,3.32
+Iceland,40,
+India,48,0.28
+Indonesia,40,1.19
+Iran,44,
+Iraq,40,1.22
+Ireland,39,11.65
+Isle of Man,,
+Israel,42,8.17
+Italy,40,
+Jamaica,40,1.31
+Japan,40,7.27
+Jersey,,
+Jordan,48,2.17
+Kazakhstan,40,0.43
+Kenya,52,0.28
+Kiribati,40,0.9
+North Korea,,
+South Korea,40,8.6
+Kosovo,40,1.12
+Kuwait,48,0.95
+Kyrgyzstan,40,0.09
+Laos,48,0.75
+Latvia,40,3.29
+Lebanon,,
+Lesotho,45,0.42
+Liberia,48,0.08
+Libya,40,1.86
+Liechtenstein,48,
+Lithuania,40,3.87
+Luxembourg,40,13.67
+North Macedonia,40,1.1
+Macau,40,4.76
+Madagascar,41,0.19
+Malawi,48,0.12
+Malaysia,48,1.07
+Maldives,48,
+Mali,48,0.23
+Malta,40,5.13
+Marshall Islands,40,2
+Mauritania,40,0.47
+Mauritius,45,1.27
+Mexico,48,1.07
+Moldova,40,0.91
+Monaco,39,11.88
+Mongolia,40,0.91
+Montenegro,40,1.27
+Morocco,44,1.64
+Mozambique,40,0.28
+Myanmar,44,0.29
+Namibia,45,
+Nauru,40,
+Nepal,48,0.57
+Netherlands,40,10.65
+New Zealand,40,13.18
+Nicaragua,48,0.46
+Niger,40,0.3
+Nigeria,40,0.53
+Northern Cyprus,40,2.77
+Norway,37.5,
+Oman,45,4.33
+Pakistan,48,0.62
+Palau,40,3
+Palestine,45,2.07
+Panama,48,1.53
+Papua New Guinea,44,0.94
+Paraguay,48,1.63
+Peru,48,1.34
+Philippines,40,1.3
+Poland,40,4.21
+Portugal,40,4.61
+Qatar,48,
+Romania,40,3.13
+Russia,40,1.14
+Rwanda,45,
+Saint Kitts and Nevis,40,3.33
+Saint Lucia,40,
+Saint Vincent and the Grenadines,40,1.16
+Samoa,40,0.76
+San Marino,37.5,10.55
+São Tomé and Príncipe,,
+Saudi Arabia,48,3.85
+Senegal,40,0.31
+Serbia,40,1.64
+Seychelles,35,2.73
+Sierra Leone,40,0.32
+Singapore,44,
+Slovakia,40,4.04
+Slovenia,40,5.84
+Solomon Islands,45,0.39
+Somalia,48,
+South Africa,45,1.5
+South Sudan,,
+Spain,40,7.3
+Sri Lanka,45,0.29
+Sudan,40,0.29
+Suriname,45,
+Sweden,40,
+Switzerland,41.7,
+Syria,40,0.4
+Taiwan,40,5.71
+Tajikistan,40,0.15
+Tanzania,45,0.09
+Thailand,48,1.33
+Timor-Leste,44,0.6
+Togo,40,0.34
+Tonga,40,
+Trinidad and Tobago,40,2.59
+Tunisia,48,0.34
+Turkey,45,2.66
+Turkmenistan,40,0.88
+Tuvalu,,
+Uganda,40,0.2
+Ukraine,40,1.34
+United Arab Emirates,48,
+United Kingdom,40,11.37
+United States,40,7.25
+Uruguay,48,2.45
+Uzbekistan,40,0.41
+Vanuatu,40,1.49
+Venezuela,,
+Vietnam,40,0.69
+Yemen,48,
+Zambia,48,0.37
+Zimbabwe,,

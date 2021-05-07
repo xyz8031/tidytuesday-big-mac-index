@@ -200,16 +200,16 @@ data %>%
   theme(panel.grid.minor = element_blank())
 # ggsave('pre_analysis.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
-p1 = data %>% dplyr::filter(name == 'Turkey') %>% 
+p1 = data %>% dplyr::filter(country == 'Turkey') %>% 
   ggplot(aes(x = year, y = local_price)) +
   geom_line(lwd = 1.5)  +
   labs(title = 'Before') + 
   theme(panel.grid.minor = element_blank()) + 
   ylab('')
 
-data$local_price[data$name == 'Turkey' & data$year < 2005] = data$local_price[data$name == 'Turkey' & data$year < 2005] / 1000000
+data$local_price[data$country == 'Turkey' & data$year < 2005] = data$local_price[data$country == 'Turkey' & data$year < 2005] / 1000000
 
-p2 = data %>% dplyr::filter(name == 'Turkey') %>% 
+p2 = data %>% dplyr::filter(country == 'Turkey') %>% 
   ggplot(aes(x = year, y = local_price)) + 
   geom_line(lwd = 1.5)  +
   labs(title = 'After') + 
@@ -218,4 +218,13 @@ p2 = data %>% dplyr::filter(name == 'Turkey') %>%
 
 p1 + p2 + plot_annotation(title = 'The Turkish Lira')
 # ggsave('turkey_currency.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
+
+
+
+data = data %>% 
+  dplyr::select(continent, country, year, dollar_price, local_price, dollar_ex, gdp)
+
+write.csv(data, 'clean_data.csv')
+
 
