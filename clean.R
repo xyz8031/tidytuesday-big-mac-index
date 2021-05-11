@@ -164,14 +164,14 @@ gdp = gdp %>%
 
 merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year')) %>%
   dplyr::filter(year >= 2011) %>% 
-  ggplot(aes(x = gdp, y = gdp_dollar)) + 
+  ggplot(aes(x = gdp_dollar, y = gdp)) + 
   geom_point(col = 'grey', fill = 'lightgrey', size = 5, alpha =0.5) +
-  stat_smooth(formula = y~x, method = 'lm', se= F, col = 'red', lwd = 1.2) + 
+  stat_smooth(formula = y~x, method = 'lm', se= F, col = 'red', lwd = 1.2, fullrange = T) + 
   facet_wrap(~year) + 
   labs(title = 'GDP Data Comparison',
        subtitle = "The Economist vs World Bank") + 
-  xlab('GDP in Current US$') + 
-  ylab('GDP in Historical US$') + 
+  xlab('GDP in Historical US$') + 
+  ylab('GDP in Current US$') + 
   theme(panel.grid.minor.y = element_blank(),
         panel.grid.minor.x = element_blank(),
         
@@ -182,14 +182,21 @@ merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year')) %>%
         legend.position = c(0.85, 1.15),
         legend.direction = 'horizontal',
         legend.background = element_rect(fill = 'white', size = 0.3),
-        legend.text = ggplot2::element_text(size=14, color="#222222")) 
+        legend.text = ggplot2::element_text(size=14, color="#222222"))
 
 # ggsave('gdp_compare.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
+merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year'), all.x = T)
+naniar::vis_miss(temp)
+# ggsave('missing_value_gdp.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
-data = merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year'), all.x = T) %>% 
-  dplyr::mutate(gdp = ifelse(is.na(gdp), gdp_dollar, gdp)) %>% 
-  dplyr::select(-gdp_dollar)
+temp = merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year')) %>%
+  dplyr::filter(year >= 2011)
+model = lm(gdp~ gdp_dollar + year, data = temp)
+
+data = merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year'), all.x = T) 
+data$gdp[is.na(data$gdp)] = predict(model, data[is.na(data$gdp), ])
+data = data %>% dplyr::select(-gdp_dollar)
 
 # Turkish Lira
 data %>% 
