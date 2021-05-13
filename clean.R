@@ -198,6 +198,9 @@ data = merge(data, gdp, by.x = c('country','year'), by.y = c('name', 'year'), al
 data$gdp[is.na(data$gdp)] = predict(model, data[is.na(data$gdp), ])
 data = data %>% dplyr::select(-gdp_dollar)
 
+naniar::vis_miss(data)
+# ggsave('missing_value_gdp.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
 # Turkish Lira
 data %>% 
   dplyr::filter(continent == 'Asia') %>% 
@@ -226,12 +229,12 @@ p2 = data %>% dplyr::filter(country == 'Turkey') %>%
 p1 + p2 + plot_annotation(title = 'The Turkish Lira')
 # ggsave('turkey_currency.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
-
-
-
 data = data %>% 
   dplyr::select(continent, country, year, dollar_price, local_price, dollar_ex, gdp)
 
-write.csv(data, 'clean_data.csv')
+knitr::kable(head(data, 5))
+str(data)
+
+write.csv(data, 'clean_data.csv', row.names = F)
 
 
