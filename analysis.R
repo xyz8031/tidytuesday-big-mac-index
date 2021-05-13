@@ -6,6 +6,7 @@ library(lubridate)
 library(ggpubr)
 library(patchwork)
 library(glue)
+library(ggrepel)
 
 setwd('~/Documents/Github/tidytuesday-big-mac-index/')
 theme_set(theme_minimal(base_family = 'Raleway', base_size = 10))
@@ -45,19 +46,36 @@ for (c in unique(data$continent)) {
   i = i + 1
 }
 
-data %>% 
+
+highlight = c('Ukraine', 'Egypt', 'Brazil', 'Uruguay', 'Sri Lanka',
+              'Russia', 'Hungary', 'Turkey', 'Australia', 'Saudi Arabia',
+              'Peru', 'Switzerland', 'Taiwan', 'South Africa')
+
+temp = data %>% 
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
-  dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
-  dplyr::filter(country != 'Argentina') %>%
-  ggplot(aes(x = year, y = local_price, group = country, col = continent)) + 
-  geom_line(show.legend = F) + 
-  facet_wrap(~continent) +
+  dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price),
+                facet = ifelse(continent %in% c('Oceania', 'Americas'), 'Americas & Oceania', continent)) %>% 
+  dplyr::filter(country != 'Argentina') 
+  
+ggplot() + 
+  geom_line(data = temp %>% dplyr::filter(!(country %in% highlight)), 
+            aes(x = year, y = local_price, group = country), col = 'lightgrey', 
+            lwd = 0.5, show.legend = F) + 
+  geom_line(data = temp %>% dplyr::filter(country %in% highlight), 
+            aes(x = year, y = local_price, group = country, col = continent), 
+            lwd = 1.125, show.legend = F) + 
+  geom_text(data =temp %>% dplyr::filter(country %in% highlight & year == 2020),
+            aes(x = 2020.25, y = local_price, label = country),
+            hjust = 0, check_overlap = T) + 
+  facet_wrap(~facet) +
+  scale_x_continuous(breaks = seq(2000, 2020, 5),
+                     limits = c(2000, 2025)) + 
   theme(panel.grid.minor = element_blank()) + 
   ggthemes::scale_color_gdocs() + 
   ylab("Gorwth Percentage") + xlab('') + 
   labs(title = 'Big Mac Price Surges over the Past 20 Years',
-       subtitle = '2000 as Base Year')
+       subtitle = '2000 as Base Period')
 
 # ggsave('price_change_normalize.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
