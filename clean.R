@@ -146,7 +146,7 @@ ggplot(temp, aes(x = country, y = missing_pct, fill = continent)) +
         panel.grid.minor = element_blank()) + 
   scale_y_continuous(breaks = c(0, 0.5, 1)) + 
   facet_wrap(~continent, scales = 'free_y')  +
-  labs(title = 'GDP data Missing Percentage by Country',
+  labs(title = 'GDP data Missing Percentage',
        subtitle = 'by Country') + 
   xlab('') + 
   ggthemes::scale_fill_gdocs() +
