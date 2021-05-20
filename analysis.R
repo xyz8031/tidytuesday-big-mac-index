@@ -111,15 +111,16 @@ temp = data %>%
                 order = ifelse(order == 1, 'start', 'end')) %>% 
   dplyr::select(country, local_price, order) %>% 
   tidyr::pivot_wider(id_col = country, names_from = order, values_from = local_price) %>% 
-  dplyr::mutate(growth = (end/start)^(1/20) - 1) 
+  dplyr::mutate(growth = (end/start)^(1/19) - 1) 
 temp$country = forcats::fct_reorder(temp$country, temp$growth)
 
 ggplot(temp) +
   geom_bar(aes(y = country, x = growth), stat = 'identity', fill = 'lightgrey') +
   # geom_bar(data = temp %>% dplyr::filter(continent == 'Asia'), aes(y = name, x = growth, fill = continent), stat = 'identity', alpha = 0.5) +
   # geom_vline(aes(xintercept = mean(temp$growth)), col = 'red', linetype = 'dashed', lwd = 0.85) +
-  geom_vline(aes(xintercept = median(temp$growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
-  scale_x_continuous(labels = scales::percent) +
+  geom_vline(aes(xintercept = mean(temp$growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
+  scale_x_continuous(breaks = seq(0, 0.25, 0.05),
+                     labels = scales::percent) +
   ggthemes::scale_fill_gdocs() + 
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank()) 
