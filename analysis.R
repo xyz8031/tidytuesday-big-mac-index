@@ -49,14 +49,14 @@ for (c in unique(data$continent)) {
 
 highlight = c('Ukraine', 'Egypt', 'Brazil', 'Uruguay', 'Sri Lanka',
               'Russia', 'Hungary', 'Turkey', 'Australia', 'Saudi Arabia',
-              'Peru', 'Switzerland', 'Taiwan', 'South Africa')
+              'Peru', 'Switzerland', 'Taiwan', 'South Africa', 'Argentina')
 
 temp = data %>% 
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
   dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price),
-                facet = ifelse(continent %in% c('Oceania', 'Americas'), 'Americas & Oceania', continent)) %>% 
-  dplyr::filter(country != 'Argentina') 
+                facet = ifelse(continent %in% c('Oceania', 'Americas'), 'Americas & Oceania', continent))  
+  # dplyr::filter(country != 'Argentina') 
   
 ggplot() + 
   geom_line(data = temp %>% dplyr::filter(!(country %in% highlight)), 
@@ -69,6 +69,7 @@ ggplot() +
             aes(x = 2020.25, y = local_price, label = country),
             hjust = 0, check_overlap = T) + 
   facet_wrap(~facet) +
+  ylim(NA, 8) + 
   scale_x_continuous(breaks = seq(2000, 2020, 5),
                      limits = c(2000, 2025)) + 
   theme(panel.grid.minor = element_blank()) + 
@@ -95,7 +96,6 @@ temp %>%
   scale_x_continuous(labels = scales::percent) +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank())
-# facet_wrap(~continent, scales = 'free') + 
 # ggsave('max_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
 
 
@@ -111,12 +111,8 @@ temp = data %>%
                 order = ifelse(order == 1, 'start', 'end')) %>% 
   dplyr::select(country, local_price, order) %>% 
   tidyr::pivot_wider(id_col = country, names_from = order, values_from = local_price) %>% 
-  dplyr::mutate(growth = (end/start)^(1/20) - 1) %>% 
-  dplyr::mutate(continent = countrycode(sourcevar = country,
-                                        origin = "country.name",
-                                        destination = "continent")) %>%
-  dplyr::mutate(continent = ifelse(country == 'Euro area','Europe', continent)) 
-temp$name = forcats::fct_reorder(temp$country, temp$growth)
+  dplyr::mutate(growth = (end/start)^(1/20) - 1) 
+temp$country = forcats::fct_reorder(temp$country, temp$growth)
 
 ggplot(temp) +
   geom_bar(aes(y = country, x = growth), stat = 'identity', fill = 'lightgrey') +
@@ -125,7 +121,6 @@ ggplot(temp) +
   geom_vline(aes(xintercept = median(temp$growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
   scale_x_continuous(labels = scales::percent) +
   ggthemes::scale_fill_gdocs() + 
-  # facet_wrap(~continent, scales = 'free_y') +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank()) 
 # ggsave('price_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
