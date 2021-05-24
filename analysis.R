@@ -152,7 +152,8 @@ ggplot() +
             hjust = 0, check_overlap = T) + 
   facet_wrap(~region) + 
   ggthemes::scale_color_gdocs() +
-  theme(legend.position = 'None') + 
+  theme(legend.position = 'None',
+        panel.grid.minor = element_blank()) + 
   scale_x_continuous(breaks = seq(2000, 2020, 5),
                      limits = c(2000, 2025)) + 
   ylim(0, NA)
