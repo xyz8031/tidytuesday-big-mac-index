@@ -83,25 +83,6 @@ ggplot() +
 temp = data %>% 
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
-  dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
-  dplyr::group_by(continent, country) %>% 
-  dplyr::summarise(max_growth = max(local_price)) 
-temp$country = forcats::fct_reorder(temp$country, temp$max_growth)
-
-temp %>% 
-  dplyr::filter(country != 'Argentina') %>% 
-  ggplot() + 
-  geom_bar(aes(y = country, x = max_growth), stat = 'identity', fill = 'lightgrey') + 
-  geom_vline(aes(xintercept = median(temp$max_growth)), col = 'red',linetype = 'dotted', lwd = 0.75) +
-  scale_x_continuous(labels = scales::percent) +
-  theme(panel.grid.major.y = element_blank(),
-        panel.grid.minor.x = element_blank())
-# ggsave('max_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
-
-
-temp = data %>% 
-  dplyr::group_by(country) %>% 
-  arrange(year) %>% 
   # dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price)) %>% 
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
@@ -152,13 +133,41 @@ for (c in unique(data$continent)) {
 }
 
 #
+highlight = c('Australia', 'Egypt', 
+              'US', 'Mexico', 'Brazil',
+              'Israel', 'Singapore', 'Taiwan',
+              'Switzerland', 'Russia', 'Euro Zone')
+
+temp = data %>% dplyr::mutate(region = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) 
+
+ggplot() +
+  geom_line(data = temp %>% dplyr::filter(!(country %in% highlight)), 
+            aes(x = year, y = dollar_price, group = country), 
+            col = 'lightgrey', lwd = 0.5) + 
+  geom_line(data = temp %>% dplyr::filter(country %in% highlight), 
+            aes(x = year, y = dollar_price, group = country, col = continent),
+            lwd = 1.125) + 
+  geom_text(data = temp %>% dplyr::filter(country %in% highlight & year == 2020),
+            aes(x = 2020.25, y = dollar_price, label = country),
+            hjust = 0, check_overlap = T) + 
+  facet_wrap(~region) + 
+  ggthemes::scale_color_gdocs() +
+  theme(legend.position = 'None') + 
+  scale_x_continuous(breaks = seq(2000, 2020, 5),
+                     limits = c(2000, 2025)) + 
+  ylim(0, NA)
+
+# ggsave('price_change_usd.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
+
+#
 ggplot(data, aes(x = gdp, y = dollar_price, col = continent)) + 
   geom_point(show.legend = F, col = 'grey') +
-  stat_smooth(formula = y~x, method = 'lm', se = F, aes(group = name), show.legend = F) + 
+  stat_smooth(formula = y~x, method = 'lm', se = F, aes(group = country), show.legend = F) + 
   facet_wrap(~continent, scales = 'free')
 
 #
-ggplot(data, aes(x = year, y = dollar_price, group = name, col = continent)) +
+ggplot(data, aes(x = year, y = dollar_price, group = country, col = continent)) +
   geom_point(col = 'grey') +
   stat_smooth(aes(group = continent), formula = y~x, se = F) + 
   theme_minimal() + 
