@@ -110,13 +110,21 @@ ggplot(temp) +
         panel.grid.minor.x = element_blank()) 
 # ggsave('price_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
 
-temp %>% 
-  dplyr::filter(!(continent %in% c('Africa','Oceania'))) %>% 
-  ggplot() +
-  # geom_density(aes(x = growth, col = continent), lwd = 1.125) + 
-  ggridges::geom_density_ridges2(aes(x = growth, y = continent), 
-                                 rel_min_height = 0.01, scale = 0.95) + 
-  # facet_wrap(~continent, ncol = 1) +
+data %>% 
+  dplyr::group_by(country) %>% 
+  arrange(year) %>% 
+  dplyr::mutate(growth = (local_price / lag(local_price)) - 1) %>% 
+  tidyr::drop_na(growth) %>% 
+  # dplyr::filter(!(continent %in% c('Oceania','Africa'))) %>% 
+  ggplot(aes(x = growth, y = year, group = year)) +
+  ggridges::stat_density_ridges(quantile_lines = TRUE, scale = 1.5,
+                                quantiles = 0.5, alpha = 0.5,
+                                rel_min_height = 0.05) + 
+  # ggridges::geom_density_ridges2(scale = 0.95) +
+  # facet_wrap(~continent, ncol = 1) + 
+  scale_x_continuous(limits = c(-.05, 0.3),
+                     labels = scales::percent) + 
+  scale_y_continuous(breaks = seq(2000, 2020, 4)) + 
   ggthemes::scale_color_gdocs() + 
   theme(legend.position = 'None',
         panel.grid.minor = element_blank())
