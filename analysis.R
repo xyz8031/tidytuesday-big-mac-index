@@ -47,7 +47,7 @@ for (c in unique(data$continent)) {
 }
 
 
-highlight = c('Ukraine', 'Egypt', 'Brazil', 'Uruguay', 'Sri Lanka',
+highlight = c('Ukraine', 'Egypt', 'Brazil', 'Uruguay', 'Sri Lanka', 'US',
               'Russia', 'Hungary', 'Turkey', 'Australia', 'Saudi Arabia',
               'Peru', 'Switzerland', 'Taiwan', 'South Africa', 'Argentina')
 
@@ -55,7 +55,7 @@ temp = data %>%
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
   dplyr::mutate(local_price = local_price/sum((row_number() == 1)*local_price),
-                facet = ifelse(continent %in% c('Oceania', 'Americas'), 'Americas & Oceania', continent))  
+                facet = ifelse(continent %in% c('Oceania', 'Africa'), 'Africa & Oceania', continent))  
   # dplyr::filter(country != 'Argentina') 
   
 ggplot() + 
@@ -93,7 +93,10 @@ temp = data %>%
   dplyr::select(country, local_price, order) %>% 
   tidyr::pivot_wider(id_col = country, names_from = order, values_from = local_price) %>% 
   dplyr::mutate(growth = (end/start)^(1/19) - 1) 
+
 temp$country = forcats::fct_reorder(temp$country, temp$growth)
+temp$continent = countrycode(temp$country, origin = "country.name", destination = "continent")
+temp$continent = ifelse(temp$country == 'Euro Zone', 'Europe', temp$continent)
 
 ggplot(temp) +
   geom_bar(aes(y = country, x = growth), stat = 'identity', fill = 'lightgrey') +
@@ -107,6 +110,17 @@ ggplot(temp) +
         panel.grid.minor.x = element_blank()) 
 # ggsave('price_growth.png', height = 16, width = 9, units = 'in', dpi = 500, scale = 0.6)
 
+temp %>% 
+  dplyr::filter(!(continent %in% c('Africa','Oceania'))) %>% 
+  ggplot() +
+  # geom_density(aes(x = growth, col = continent), lwd = 1.125) + 
+  ggridges::geom_density_ridges2(aes(x = growth, y = continent), 
+                                 rel_min_height = 0.01, scale = 0.95) + 
+  # facet_wrap(~continent, ncol = 1) +
+  ggthemes::scale_color_gdocs() + 
+  theme(legend.position = 'None',
+        panel.grid.minor = element_blank())
+# ggsave('price_growth_distribution.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 # Prince change in US dollar
 #####################################################################################
