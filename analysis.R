@@ -218,35 +218,44 @@ wage = read.csv('minimum_wage.csv') %>%
   dplyr::select(-iso_a3) %>% 
   tidyr::drop_na()
 
-
+# hours to get big mac
 merge(data, wage, by = 'country') %>% 
   dplyr::filter(year == 2020) %>% 
   dplyr::mutate(hour = dollar_price / hourly_wage,
-                continent = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) %>% 
+                region = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) %>% 
   dplyr::mutate(country = forcats::fct_reorder(country, hour)) %>%
   ggplot() + 
   geom_bar(aes(x = country, y = hour, fill = continent), stat = 'identity', show.legend = F) + 
-  facet_wrap(~continent, scales = 'free_y') + 
+  facet_wrap(~region, scales = 'free_y') + 
   coord_flip() + 
   ggthemes::scale_fill_gdocs() +
-  theme(panel.grid.minor = element_blank())
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank())
 
+# ggsave('working_hour.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
-
+# hourly wage vs dollar price
 temp = merge(data, wage, by = 'country') %>% 
   dplyr::filter(year == 2020) %>% 
   dplyr::mutate(hour = dollar_price / hourly_wage,
                 continent = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent))
   
-target = c('China', 'Hong Kong', 'India', 'Japan', 'South Korea', 'Taiwan', 'Thailand', 'UK', 'US')
+highlight = c('India', 'Japan', 'South Korea', 'Taiwan',
+              'UK', 'US', 'Israel', 'Australia', 
+              'Uruguay', 'Turkey', 'Brazil')
 
-ggplot(temp %>% dplyr::filter(!(country %in% target)), 
-       aes(x = hourly_wage, y = dollar_price, label = country)) + 
-  geom_point(aes(color = continent), shape = 21, fill = 'white', size = 5, stroke = 1.5) + 
-  stat_smooth(formula = y~poly(x, 2), method = 'lm', se = F, col = 'grey', lwd = 1.5) +
-  ggrepel::geom_label_repel(data = temp %>% dplyr::filter(country %in% target)) +
+ggplot() + 
+  geom_point(data = temp %>% dplyr::filter((!country %in% highlight)),
+             aes(x = hourly_wage, y = dollar_price, col = continent), shape = 21, fill = 'white', size = 5, stroke = 1.5) + 
+  stat_smooth(data = temp, 
+              aes(x = hourly_wage, y = dollar_price, group = 1),
+              formula = y~poly(x, 2), method = 'lm', se = F, col = 'black', lwd = 1.5, fullrange = T) +
+  geom_label_repel(data = temp %>% dplyr::filter(country %in% highlight),
+                   aes(x = hourly_wage, y = dollar_price, label = country, col = continent), show.legend = F) +
   ggthemes::scale_color_gdocs() +
-  theme(legend.position = 'top')
+  theme(legend.position = 'top',
+        panel.grid.minor = element_blank())
 
+# ggsave('hourly_wage_vs_dollar_price.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 
