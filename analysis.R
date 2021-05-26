@@ -160,7 +160,8 @@ highlight = c('Australia', 'Egypt',
               'Israel', 'Singapore', 'Taiwan',
               'Switzerland', 'Russia', 'Euro Zone')
 
-temp = data %>% dplyr::mutate(region = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) 
+temp = data %>% 
+  dplyr::mutate(region = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) 
 
 ggplot() +
   geom_line(data = temp %>% dplyr::filter(!(country %in% highlight)), 
@@ -184,35 +185,27 @@ ggplot() +
 
 
 #
-ggplot(data, aes(x = gdp, y = dollar_price, col = continent)) + 
-  geom_point(show.legend = F, col = 'grey') +
-  stat_smooth(formula = y~x, method = 'lm', se = F, aes(group = country), show.legend = F) + 
-  facet_wrap(~continent, scales = 'free')
+highlight = c('South Africa',
+              'Brazil', 'Canada', 'Chile',
+              'Israel', 'Japan', 'Singapore', 'Turkey', 
+              'Norway', 'Sweden', 'Hungary',
+              'New Zealand', 'Australia')
 
-#
-ggplot(data, aes(x = year, y = dollar_price, group = country, col = continent)) +
-  geom_point(col = 'grey') +
-  stat_smooth(aes(group = continent), formula = y~x, se = F) + 
-  theme_minimal() + 
-  scale_color_brewer(palette = 'Set1') + 
-  facet_wrap(~continent) + 
-  ylim(0, 12) + 
-  stat_regline_equation(aes(group = continent), label.y = 10, label.x = 2002) + 
-  theme(panel.grid.minor = element_blank(),
-        legend.position = 'none')  
+ggplot() + 
+  geom_point(data = data, aes(x = gdp, y = dollar_price), show.legend = F, size = 3, col = 'lightgrey', alpha = 0.35) +
+  stat_smooth(data = data %>% dplyr::filter(!(country %in% highlight)), 
+              aes(x = gdp, y = dollar_price, group = country), col = 'grey',
+              formula = y~x, method = 'lm', se = F, show.legend = F) + 
+  stat_smooth(data = data %>% dplyr::filter(country %in% highlight), 
+              aes(x = gdp, y = dollar_price, group = country, col = continent), 
+              formula = y~x, method = 'lm', se = F, show.legend = F) + 
+  geom_label(data = data %>% dplyr::filter(country %in% highlight) %>% dplyr::group_by(country) %>% dplyr::filter(dollar_price == max(dollar_price)),
+            aes(x = gdp * 0.85, y = dollar_price * 0.95, label = country)) + 
+  facet_wrap(~continent, scales = 'free') + 
+  ggthemes::scale_color_gdocs()  +
+  theme(panel.grid.minor = element_blank())
 
-#
-data %>% 
-  dplyr::group_by(year, continent) %>% 
-  dplyr::summarise(dollar_price = mean(dollar_price)) %>% 
-  ggplot(aes(x = year, y = dollar_price, col = continent)) +
-  geom_point(col = 'grey') +
-  stat_smooth(aes(group = continent), formula = y~x, se = F) + 
-  theme_minimal() + 
-  scale_color_brewer(palette = 'Set1') + 
-  facet_wrap(~continent) + 
-  theme(panel.grid.minor = element_blank(),
-        legend.position = 'none')  
+# ggsave('dollar_price_vs_gdp.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 # Minimum Wage
 #####################################################################################
