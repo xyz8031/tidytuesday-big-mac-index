@@ -247,7 +247,7 @@ temp = merge(data, wage, by = 'country') %>%
   
 highlight = c('India', 'Japan', 'South Korea', 'Taiwan',
               'UK', 'US', 'Israel', 'Australia', 
-              'Uruguay', 'Turkey', 'Brazil')
+              'Uruguay', 'Turkey', 'Brazil', 'Costa Rica')
 
 ggplot() + 
   geom_point(data = temp %>% dplyr::filter((!country %in% highlight)),
