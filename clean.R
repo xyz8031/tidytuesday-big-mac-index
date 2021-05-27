@@ -17,12 +17,12 @@ data = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
 str(data)
 
 data = data %>% 
-  dplyr::select(date, name, iso_a3, dollar_price, local_price, dollar_ex, gdp_dollar)
+  dplyr::select(date, name, iso_a3, dollar_price, local_price, gdp_dollar)
   # dplyr::mutate(name = plyr::mapvalues(name, 
   #                                      from = c('United States', 'United Arab Emirates'),
   #                                      to = c('USA', 'UAE')))
 
-head(data, 6)
+head(data, 5) %>% knitr::kable()
 skimr::skim(data)
 
 # 國家、州名稱
@@ -230,7 +230,7 @@ p1 + p2 + plot_annotation(title = 'The Turkish Lira')
 # ggsave('turkey_currency.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
 data = data %>% 
-  dplyr::select(continent, country, year, dollar_price, local_price, dollar_ex, gdp)
+  dplyr::select(continent, country, year, dollar_price, local_price, gdp)
 
 knitr::kable(head(data, 5))
 str(data)
