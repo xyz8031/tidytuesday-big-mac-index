@@ -185,23 +185,28 @@ ggplot() +
 
 
 #
+
+temp = data %>% 
+  dplyr::mutate(region = ifelse(continent %in% c('Africa', 'Oceania'), 'Africa & Oceania', continent)) 
+
 highlight = c('South Africa',
               'Brazil', 'Canada', 'Chile',
               'Israel', 'Japan', 'Singapore', 'Turkey', 
               'Norway', 'Sweden', 'Hungary',
-              'New Zealand', 'Australia')
+              'Australia', 'Thailand', 'Malaysia')
 
 ggplot() + 
-  geom_point(data = data, aes(x = gdp, y = dollar_price), show.legend = F, size = 3, col = 'lightgrey', alpha = 0.35) +
-  stat_smooth(data = data %>% dplyr::filter(!(country %in% highlight)), 
+  geom_point(data = temp, aes(x = gdp, y = dollar_price), show.legend = F, size = 3, col = 'lightgrey', alpha = 0.35) +
+  stat_smooth(data = temp %>% dplyr::filter(!(country %in% highlight)), 
               aes(x = gdp, y = dollar_price, group = country), col = 'grey',
               formula = y~x, method = 'lm', se = F, show.legend = F) + 
-  stat_smooth(data = data %>% dplyr::filter(country %in% highlight), 
+  stat_smooth(data = temp %>% dplyr::filter(country %in% highlight), 
               aes(x = gdp, y = dollar_price, group = country, col = continent), 
               formula = y~x, method = 'lm', se = F, show.legend = F) + 
-  geom_label(data = data %>% dplyr::filter(country %in% highlight) %>% dplyr::group_by(country) %>% dplyr::filter(dollar_price == max(dollar_price)),
-            aes(x = gdp * 0.85, y = dollar_price * 0.95, label = country)) + 
-  facet_wrap(~continent, scales = 'free') + 
+  geom_label(data = temp %>% dplyr::filter(country %in% highlight) %>% dplyr::group_by(country) %>% dplyr::filter(dollar_price == max(dollar_price)),
+            aes(x = gdp * 0.85, y = dollar_price * 0.95, label = country),
+            label.size = 0.2) + 
+  facet_wrap(~region, scales = 'free') + 
   ggthemes::scale_color_gdocs()  +
   theme(panel.grid.minor = element_blank())
 
