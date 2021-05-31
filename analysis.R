@@ -48,7 +48,7 @@ for (c in unique(data$continent)) {
 
 
 highlight = c('Ukraine', 'Egypt', 'Brazil', 'Uruguay', 'Sri Lanka', 'US',
-              'Russia', 'Hungary', 'Turkey', 'Australia', 'Saudi Arabia',
+              'Russia', 'Hungary', 'Turkey', 'New Zealand', 'Saudi Arabia',
               'Peru', 'Switzerland', 'Taiwan', 'South Africa', 'Argentina')
 
 temp = data %>% 
