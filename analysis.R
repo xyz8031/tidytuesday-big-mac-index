@@ -80,6 +80,22 @@ ggplot() +
 
 # ggsave('price_change_normalize.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
 
+
+temp %>% 
+  dplyr::filter(country %in% c('Argentina', 'Ukraine','Brazil','Uruguay')) %>% 
+  ggplot() + 
+  geom_line(aes(x = year, y = local_price, col = country), lwd = 1.25) + 
+  scale_color_manual(values = c('#74ACDF', '#009c3b','#ffd700','#7B3F00')) + 
+  scale_x_continuous(breaks = seq(2000, 2020, 5),
+                     limits = c(2000, 2020)) + 
+  theme(panel.grid.minor = element_blank(),
+        legend.position = 'bottom',
+        legend.direction = 'horizontal') + 
+  ylab("Gorwth Percentage") + xlab('') + 
+  labs(title = 'Exponential Growth of Big Mac Price in Argentina')
+# ggsave('price_change_normalize_top.png', width = 16, height = 9, units = 'in', dpi = 500, scale = 0.6)
+
+
 temp = data %>% 
   dplyr::group_by(country) %>% 
   arrange(year) %>% 
